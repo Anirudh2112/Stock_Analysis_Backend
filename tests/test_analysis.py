@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from app.services.analysis import StockAnalysisService
 
 def test_calculate_breakout_returns():
-    # Test with known stock data
     result_df, summary = StockAnalysisService.calculate_breakout_returns(
         ticker="AAPL",
         start_date=(datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d"),
@@ -13,14 +12,12 @@ def test_calculate_breakout_returns():
         holding_period=10
     )
     
-    # Check if DataFrame has expected columns
     expected_columns = [
         'Date', 'Entry_Price', 'Exit_Price', 
         'Volume_Ratio', 'Daily_Return', 'Total_Return'
     ]
     assert all(col in result_df.columns for col in expected_columns)
     
-    # Check if summary has expected keys
     expected_summary_keys = [
         'Total_Trades', 'Average_Return', 'Median_Return',
         'Win_Rate', 'Best_Trade', 'Worst_Trade'
@@ -42,8 +39,8 @@ def test_invalid_date_range():
     with pytest.raises(ValueError):
         StockAnalysisService.calculate_breakout_returns(
             ticker="AAPL",
-            start_date=datetime.now().strftime("%Y-%m-%d"),  # Start date is today
-            end_date=(datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d"),  # End date is in the past
+            start_date=datetime.now().strftime("%Y-%m-%d"),  
+            end_date=(datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d"),  
             volume_threshold=200,
             price_threshold=2,
             holding_period=10

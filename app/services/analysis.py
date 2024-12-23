@@ -14,21 +14,17 @@ class StockAnalysisService:
         price_threshold: float,
         holding_period: int
     ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
-        # Add buffer days to get enough data for initial average calculation
         start_dt = datetime.strptime(start_date, '%Y-%m-%d')
         buffered_start = (start_dt - timedelta(days=30)).strftime('%Y-%m-%d')
         
-        # Fetch data from Yahoo Finance
+        # Data from Yahoo Finance
         stock = yf.Ticker(ticker)
         df = stock.history(start=buffered_start, end=end_date)
         
         if df.empty:
             raise ValueError("No data found for the specified ticker and date range")
         
-        # Calculate 20-day average volume
         df['Volume_MA20'] = df['Volume'].rolling(window=20).mean()
-        
-        # Calculate daily returns
         df['Daily_Return'] = df['Close'].pct_change()
         
         # Identify breakout days
@@ -44,7 +40,6 @@ class StockAnalysisService:
         for day in breakout_days:
             entry_price = df.loc[day, 'Close']
             
-            # Get future prices for holding period
             future_prices = df.loc[day:].head(holding_period + 1)
             
             if len(future_prices) < holding_period + 1:
@@ -67,7 +62,6 @@ class StockAnalysisService:
         
         results_df = pd.DataFrame(results)
         
-        # Calculate summary statistics
         summary = {
             'Total_Trades': len(results),
             'Average_Return': round(results_df['Total_Return'].mean(), 2),
